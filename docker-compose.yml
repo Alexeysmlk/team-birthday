@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+    web:
+        container_name: birthday_nginx
+        image: nginx:latest
+        ports:
+            - "80:80"
+        volumes:
+            - ./:/var/www/html
+            - ./docker/web/default.conf:/etc/nginx/conf.d/default.conf
+        links:
+            - fpm
+            - mysql
+    fpm:
+        container_name: birthday_fpm
+        environment:
+            PHP_IDE_CONFIG: "serverName=server"
+        build:
+          dockerfile: docker/php/Dockerfile
+          context: .
+        volumes:
+            - ./:/var/www/html
+        links:
+            - mysql
+    mysql:
+        container_name: birthday_db
+        image: mariadb:10.3
+        ports:
+            - "3306:3306"
+        environment:
+            - MYSQL_ROOT_PASSWORD=root
+            - MYSQL_DATABASE=birthday
